@@ -1,11 +1,14 @@
 import os
 from langchain_community.document_loaders import DirectoryLoader, UnstructuredRSTLoader, UnstructuredMarkdownLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+#from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+#import pypandoc
+#pypandoc.download_pandoc()
 
 # Настройки
-DOCS_PATH = "./ros2_documentation" # Путь к склонированному репо
+DOCS_PATH = "F:/ROS2/ros2_documentation/" # Путь к склонированному репо
 DB_PATH = "./chroma_db"
 OPENAI_API_KEY = "sk-..." # Ваш ключ
 
@@ -33,7 +36,12 @@ text_splitter = RecursiveCharacterTextSplitter(
 splits = text_splitter.split_documents(docs)
 
 # 3. Создание эмбеддингов и сохранение в ChromaDB
-embedding_function = OpenAIEmbeddings(api_key=OPENAI_API_KEY, model="text-embedding-3-small")
+#embedding_function = OpenAIEmbeddings(api_key=OPENAI_API_KEY, model="text-embedding-3-small")
+print("Инициализация модели эмбеддингов...")
+embedding_function = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={'device': 'cpu'}
+)
 
 print("Создание векторной базы...")
 vectorstore = Chroma.from_documents(

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # 1. Брокер сообщений
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # 2. Бот (Frontend)
+  bot:
+    build: .
+    command: python bot.py
+    env_file: .env
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  # 3. Воркер (Backend - RAG)
+  worker:
+    build: .
+    command: celery -A tasks worker --loglevel=info --concurrency=1
+    env_file: .env
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # 4. Статистика (Flower)
+  flower:
+    image: mher/flower
+    command: celery flower --broker=redis://redis:6379/0 --port=5555
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
