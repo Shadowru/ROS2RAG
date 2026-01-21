@@ -8,7 +8,6 @@ from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
-# Глобальные переменные для кэширования модели в памяти воркера
 rag_chain = None
 
 def init_rag():
@@ -16,7 +15,7 @@ def init_rag():
     global rag_chain
     print("Worker: Загрузка моделей...")
     
-    DB_PATH = "/app/chroma_db_local" # Путь внутри Docker
+    DB_PATH = "/app/chroma_db"
     
     # 1. Эмбеддинги (CPU)
     embedding_function = HuggingFaceEmbeddings(
